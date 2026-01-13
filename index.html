@@ -4,28 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KnoxCalls Recorder</title>
+    <title>PARROT | KnoxCalls</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600&display=swap"
         rel="stylesheet">
 
     <style>
         :root {
-            --primary-orange: #FF8200;
-            --primary-navy: #0A1628;
-            --secondary-dark: #050C16;
-            --text-white: #FFFFFF;
-            --text-gray: #B0BEC5;
-            --glow-color: rgba(255, 130, 0, 0.4);
+            --brand-orange: #FF8200;
+            --brand-navy: #0f172a;
+            /* Slate 950 */
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #FFFFFF;
+            --text-muted: #94a3b8;
+            /* Slate 400 */
         }
 
         body {
-            font-family: 'Source Sans 3', sans-serif;
-            background: var(--primary-navy);
-            background: radial-gradient(circle at center top, #142845 0%, var(--primary-navy) 70%);
-            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--brand-navy);
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.05), transparent 60%),
+                /* Subtle Blue top glow */
+                radial-gradient(circle at 100% 100%, rgba(255, 130, 0, 0.03), transparent 40%);
+            /* Subtle Orange corner */
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -34,286 +40,258 @@
             margin: 0;
             padding: 20px;
             text-align: center;
-            overflow-x: hidden;
         }
 
-        /* Scanline effect */
-        body::after {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: repeating-linear-gradient(0deg,
-                    rgba(0, 0, 0, 0.1),
-                    rgba(0, 0, 0, 0.1) 1px,
-                    transparent 1px,
-                    transparent 2px);
-            pointer-events: none;
-            z-index: 999;
-        }
-
-        .container {
-            background: rgba(10, 22, 40, 0.8);
-            padding: 2.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            /* Sharp-ish */
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.2);
-            max-width: 420px;
-            width: 100%;
+        /* Branding Container */
+        .brand-header {
+            margin-bottom: 2rem;
             position: relative;
-            backdrop-filter: blur(10px);
+            display: inline-block;
         }
 
-        /* Decorative Corners */
-        .corner {
+        /* The "Badge" Lines */
+        .brand-header::before,
+        .brand-header::after {
+            content: "";
             position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary-orange);
-            transition: all 0.3s ease;
+            top: 50%;
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
         }
 
-        .tl {
-            top: -2px;
-            left: -2px;
-            border-bottom: none;
-            border-right: none;
+        .brand-header::before {
+            right: 100%;
+            margin-right: 15px;
         }
 
-        .tr {
-            top: -2px;
-            right: -2px;
-            border-bottom: none;
-            border-left: none;
-        }
-
-        .bl {
-            bottom: -2px;
-            left: -2px;
-            border-top: none;
-            border-right: none;
-        }
-
-        .br {
-            bottom: -2px;
-            right: -2px;
-            border-top: none;
-            border-left: none;
+        .brand-header::after {
+            left: 100%;
+            margin-left: 15px;
         }
 
         h1 {
             font-family: 'Bebas Neue', sans-serif;
-            color: var(--text-white);
-            margin: 0 0 1.5rem 0;
-            font-size: 3rem;
-            letter-spacing: 2px;
-            text-shadow: 0 0 15px var(--glow-color);
+            color: var(--text-main);
+            margin: 0;
+            font-size: 4rem;
+            letter-spacing: 6px;
+            /* High spacing like NIGHTWATCH */
             line-height: 1;
+            text-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
         }
 
-        h1 span {
-            color: var(--primary-orange);
+        .tagline {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 5px;
+            font-weight: 600;
         }
 
-        /* Session Input */
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
+        /* CARD Container (Glassmorphism) */
+        .container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 3rem 2.5rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 100%;
             position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle orange top border like login inputs often hav focus */
+        .container::top {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--brand-orange), transparent);
+            opacity: 0.5;
+        }
+
+        /* Input Styling */
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
         }
 
         .input-group label {
             display: block;
-            font-family: 'Bebas Neue';
-            letter-spacing: 1px;
-            font-size: 1.1rem;
-            color: var(--primary-orange);
+            font-size: 0.75rem;
+            color: var(--text-muted);
             margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid #334;
-            border-left: 3px solid var(--primary-orange);
-            border-radius: 2px;
-            font-size: 1.1rem;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            font-size: 1rem;
             color: white;
-            font-family: 'Source Sans 3';
+            font-family: 'Inter', sans-serif;
             box-sizing: border-box;
             transition: all 0.2s;
         }
 
         input[type="text"]:focus {
-            border-color: var(--primary-orange);
+            border-color: var(--brand-orange);
             outline: none;
-            box-shadow: 0 0 15px rgba(255, 130, 0, 0.1);
+            box-shadow: 0 0 0 2px rgba(255, 130, 0, 0.2);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         /* Main Action Button */
         button.main-btn {
             border: none;
-            padding: 20px 30px;
-            border-radius: 2px;
-            /* Sharp */
-            font-family: 'Bebas Neue';
-            font-size: 1.8rem;
-            letter-spacing: 1.5px;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.2s ease;
             width: 100%;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 0px #b35b00;
-            /* 3D effect */
-            background-color: var(--primary-orange);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ff8200 0%, #e67300 100%);
             color: white;
+            letter-spacing: 0.5px;
+            box-shadow: 0 10px 15px -3px rgba(255, 130, 0, 0.3);
             text-transform: uppercase;
         }
 
+        button.main-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 20px 25px -5px rgba(255, 130, 0, 0.4);
+            filter: brightness(1.1);
+        }
+
         button.main-btn:active {
-            transform: translateY(4px);
-            box-shadow: none;
+            transform: translateY(1px);
         }
 
         #recordBtn.recording {
-            background-color: transparent;
-            border: 2px solid #FF3B30;
-            color: #FF3B30;
-            box-shadow: 0 0 20px rgba(255, 59, 48, 0.4);
-            animation: pulse-red 1.5s infinite;
+            background: transparent;
+            border: 1px solid #ef4444;
+            /* Red-500 */
+            color: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+            animation: pulse-red 2s infinite;
         }
 
-        #recordBtn:disabled {
-            background-color: #333;
-            box-shadow: none;
-            color: #555;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Live Transcript HUD */
-        #liveTranscript {
-            text-align: left;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px;
-            border: 1px solid #333;
-            border-radius: 2px;
-            margin-bottom: 20px;
-            max-height: 150px;
-            overflow-y: auto;
-            font-size: 0.95rem;
-            color: #4CAF50;
-            /* Retro Terminal Green */
-            font-family: monospace;
-            display: none;
-            position: relative;
-        }
-
-        #liveTranscript small {
-            display: block;
-            color: var(--primary-orange);
-            marginBottom: 8px;
-            font-family: 'Bebas Neue';
-            font-size: 1rem;
-        }
-
-        /* Scrollbar */
-        #liveTranscript::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #liveTranscript::-webkit-scrollbar-thumb {
-            background: #333;
-        }
-
-        /* Download Buttons */
+        /* Secondary Buttons (Glass) */
         .actions-area {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 10px;
             display: none;
         }
 
         .action-btn {
             flex: 1;
-            padding: 15px;
-            border: 1px solid var(--text-gray);
-            background: transparent;
-            border-radius: 2px;
-            font-family: 'Bebas Neue';
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-            color: var(--text-white);
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--text-muted);
             cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
+            gap: 6px;
         }
 
         .action-btn:hover {
-            border-color: var(--primary-orange);
-            color: var(--primary-orange);
-            background: rgba(255, 130, 0, 0.05);
-            box-shadow: 0 0 15px rgba(255, 130, 0, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        #status {
-            margin-top: 15px;
-            color: var(--text-gray);
-            font-size: 0.9rem;
-            min-height: 20px;
-            text-transform: uppercase;
+        /* Live Feed */
+        #liveTranscript {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            height: 100px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            color: var(--brand-orange);
+            font-family: 'Inter', monospace;
+            display: none;
+            border: 1px dashed var(--glass-border);
+        }
+
+        #liveTranscript small {
+            display: block;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-size: 0.7rem;
             letter-spacing: 1px;
         }
 
-        #debug {
-            font-family: monospace;
-            font-size: 0.75rem;
-            color: #555;
-            margin-top: 10px;
-            word-break: break-all;
-        }
-
-        #result {
-            text-align: left;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 2px;
-            margin-top: 25px;
+        .utilities {
             display: none;
-            max-height: 40vh;
-            overflow-y: auto;
-            font-size: 0.95rem;
-            border-left: 3px solid var(--primary-orange);
-            line-height: 1.5;
         }
 
-        #result h3 {
-            color: var(--text-white);
-            font-family: 'Bebas Neue';
-            font-size: 1.5rem;
-            margin-top: 0;
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            color: #475569;
+            /* Slate 600 */
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
 
-        /* Pulse Animation */
+        .footer span {
+            color: var(--brand-orange);
+        }
+
+        #status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 15px;
+            height: 20px;
+        }
+
+        #debug {
+            color: #334155;
+            font-size: 0.7rem;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+
         @keyframes pulse-red {
             0% {
-                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+                border-color: #ef4444;
             }
 
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
+            50% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+                border-color: #f87171;
             }
 
             100% {
-                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+                border-color: #ef4444;
             }
         }
     </style>
@@ -321,36 +299,44 @@
 
 <body>
 
+    <div class="brand-header">
+        <h1>PARROT</h1>
+        <div class="tagline">Audio Intelligence System</div>
+    </div>
+
     <div class="container">
-        <div class="corner tl"></div>
-        <div class="corner tr"></div>
-        <div class="corner bl"></div>
-        <div class="corner br"></div>
-
-        <h1>KNOX<span>CALLS</span></h1>
-
         <div class="input-group">
-            <label for="userKey">Mission ID / Name</label>
-            <input type="text" id="userKey" placeholder="OPERATION-ALPHA" autocomplete="off" />
+            <label for="userKey">Operation ID / Target</label>
+            <input type="text" id="userKey" placeholder="Enter session identifier..." autocomplete="off" />
         </div>
 
         <div id="liveTranscript">
-            <small>> LIVE_FEED_01</small>
+            <small>LIVE FEED //</small>
             <div id="liveTextContent"></div>
         </div>
 
-        <button id="recordBtn" class="main-btn">INITIATE REC</button>
+        <button id="recordBtn" class="main-btn">Initialize Recording</button>
 
         <!-- Download Section -->
         <div id="actionArea" class="actions-area">
-            <button id="dlAudio" class="action-btn">AUDIO LOG</button>
-            <button id="dlText" class="action-btn">TRANSCRIPT</button>
+            <button id="dlAudio" class="action-btn">
+                <span>sc_audio.webm</span>
+            </button>
+            <button id="dlText" class="action-btn">
+                <span>transcript.json</span>
+            </button>
         </div>
 
-        <div id="status">System Ready</div>
+        <div id="status">Standby</div>
         <div id="debug"></div>
-        <div id="result"></div>
     </div>
+
+    <div class="footer">
+        POWERED BY <span>KNOXCALLS</span>
+    </div>
+
+    <!-- Hidden Result Container for Logic Compatibility -->
+    <div id="result" style="display:none;"></div>
 
     <script>
         // --- CONFIGURATION ---
@@ -443,7 +429,7 @@
         async function checkUnsavedRecordings() {
             const data = await getFromDB('current_recording');
             if (data && data.chunks && data.chunks.length > 0) {
-                const restore = confirm("DETECTED UNSAVED DATA: " + data.date.toLocaleString() + ". RESTORE?");
+                const restore = confirm("UNSAVED DATA FOUND (" + data.date.toLocaleString() + "). RESTORE?");
                 if (restore) {
                     audioChunks = data.chunks;
                     currentAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -492,18 +478,18 @@
                 globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 return globalStream;
             } catch (err) {
-                alert("MIC PERMISSION DENIED");
+                alert("MIC ACCESS DENIED");
                 return null;
             }
         }
 
         recordBtn.addEventListener('click', async () => {
             if (!recordBtn.classList.contains('recording') && hasUnsavedData) {
-                if (!confirm("OVERWRITE EXISTING DATA?")) return;
+                if (!confirm("OVERWRITE CURRENT DATA?")) return;
                 hasUnsavedData = false;
                 actionArea.style.display = 'none';
                 resultEl.style.display = 'none';
-                clearDB();
+                clearDB(); // Clear backup
             }
 
             if (recordBtn.classList.contains('recording')) {
@@ -543,8 +529,8 @@
 
             recordBtn.textContent = "STOP RECORDING";
             recordBtn.classList.add('recording');
-            statusEl.textContent = "RECORDING IN PROGRESS...";
-            debugEl.textContent = `ID: ${userKeyInput.value || 'ANON'}`;
+            statusEl.textContent = "RECORDING ACTIVE";
+            debugEl.textContent = `SESSION: ${userKeyInput.value || 'ANONYMOUS'}`;
             resultEl.style.display = 'none';
             actionArea.style.display = 'none';
         }
@@ -557,7 +543,7 @@
             }
             if (wakeLock) wakeLock.release();
             if (recognition) recognition.stop();
-            recordBtn.textContent = "PROCESSING...";
+            recordBtn.textContent = "PROCESSING DATA...";
         }
 
         async function sendData() {
@@ -571,7 +557,7 @@
             }
 
             actionArea.style.display = 'flex';
-            statusEl.textContent = "UPLOADING...";
+            statusEl.textContent = "UPLOADING TO CLOUD...";
             recordBtn.disabled = true;
             recordBtn.classList.remove('recording');
 
@@ -586,16 +572,16 @@
                     body: audioBlob
                 });
 
-                if (!response.ok) throw new Error(`Status ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
                 const data = await response.json();
                 resetUI();
-                statusEl.textContent = "UPLOAD COMPLETE";
+                statusEl.textContent = "UPLOAD SUCCESSFUL";
                 hasUnsavedData = true;
                 renderResponse(data);
 
             } catch (error) {
-                statusEl.innerHTML = `<span style='color:#FF3B30'>ERROR: ${error.message}</span>`;
+                statusEl.innerHTML = `<span style='color:#ef4444'>ERROR: UPLOAD FAILED</span>`;
                 resetUI();
             }
         }
@@ -616,27 +602,13 @@
                     currentSummaryData = { ...data, summary: json };
                 } catch (e) { }
             }
-
-            resultEl.style.display = 'block';
-
-            let html = `<h3>${json.meeting_title || 'Meeting Summary'}</h3>`;
-            html += `<p><strong>SUMMARY:</strong> ${typeof json.summary === 'string' ? json.summary : JSON.stringify(json.summary)}</p>`;
-
-            if (json.action_items && Array.isArray(json.action_items)) {
-                html += `<strong>ACTION ITEMS:</strong><ul style="padding-left: 20px; margin-top:5px;">`;
-                json.action_items.forEach(item => {
-                    const text = item.task ? `${item.task} <b>(${item.assignee})</b>` : item;
-                    html += `<li>${text}</li>`;
-                });
-                html += `</ul>`;
-            }
-            resultEl.innerHTML = html;
+            // No result display in this UI, but we store data for download
         }
 
         // --- DOWNLOADS ---
         dlAudioBtn.addEventListener('click', () => {
             if (!currentAudioBlob) return;
-            downloadBlob(currentAudioBlob, `knox-rec-${getTimestamp()}.webm`);
+            downloadBlob(currentAudioBlob, `parrot-log-${getTimestamp()}.webm`);
         });
 
         dlTextBtn.addEventListener('click', () => {
@@ -652,35 +624,38 @@
                     } else {
                         content = t;
                     }
-                } else if (currentSummaryData.summary || currentSummaryData.action_items) {
-                    const title = currentSummaryData.meeting_title || "Summary";
-                    content = `=== ${title.toUpperCase()} ===\n\n`;
-                    if (currentSummaryData.summary) {
-                        const s = currentSummaryData.summary;
-                        content += "--- SUMMARY ---\n";
-                        content += (typeof s === 'object') ? JSON.stringify(s, null, 2) : s;
-                        content += "\n\n";
-                    }
-                    if (currentSummaryData.action_items) {
-                        content += "--- ACTION ITEMS ---\n";
-                        currentSummaryData.action_items.forEach(item => {
-                            const task = item.task || item;
-                            content += `- ${task}\n`;
-                        });
-                    }
                 } else {
-                    content = JSON.stringify(currentSummaryData, null, 2);
-                    ext = "json";
-                    isJson = true;
+                    // Fallback to summary
+                    if (currentSummaryData.summary || currentSummaryData.action_items) {
+                        const title = currentSummaryData.meeting_title || "Summary";
+                        content = `=== ${title.toUpperCase()} ===\n\n`;
+                        if (currentSummaryData.summary) {
+                            const s = currentSummaryData.summary;
+                            content += "--- SUMMARY ---\n";
+                            content += (typeof s === 'object') ? JSON.stringify(s, null, 2) : s;
+                            content += "\n\n";
+                        }
+                        if (currentSummaryData.action_items) {
+                            content += "--- ACTION ITEMS ---\n";
+                            currentSummaryData.action_items.forEach(item => {
+                                const task = item.task || item;
+                                content += `- ${task}\n`;
+                            });
+                        }
+                    } else {
+                        content = JSON.stringify(currentSummaryData, null, 2);
+                        ext = "json";
+                        isJson = true;
+                    }
                 }
             } else if (finalTranscriptText) {
-                content = "LOCAL LOG:\n\n" + finalTranscriptText;
+                content = "LOCAL TRANSCRIPT:\n\n" + finalTranscriptText;
             } else {
                 return;
             }
 
             const blob = new Blob([content], { type: isJson ? 'application/json' : 'text/plain' });
-            downloadBlob(blob, `knox-transcript-${getTimestamp()}.${ext}`);
+            downloadBlob(blob, `parrot-intel-${getTimestamp()}.${ext}`);
         });
 
         function downloadBlob(blob, filename) {
