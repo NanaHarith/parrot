@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KnoxCalls Recorder</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-orange: #FF8200;
+            --primary-navy: #0A1628;
+            --secondary-dark: #050C16;
+            --text-white: #FFFFFF;
+            --text-gray: #B0BEC5;
+            --glow-color: rgba(255, 130, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--primary-navy);
+            background: radial-gradient(circle at center top, #142845 0%, var(--primary-navy) 70%);
+            color: var(--text-white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        /* Scanline effect */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: repeating-linear-gradient(0deg,
+                    rgba(0, 0, 0, 0.1),
+                    rgba(0, 0, 0, 0.1) 1px,
+                    transparent 1px,
+                    transparent 2px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .container {
+            background: rgba(10, 22, 40, 0.8);
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            /* Sharp-ish */
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.2);
+            max-width: 420px;
+            width: 100%;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Decorative Corners */
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-orange);
+            transition: all 0.3s ease;
+        }
+
+        .tl {
+            top: -2px;
+            left: -2px;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        .tr {
+            top: -2px;
+            right: -2px;
+            border-bottom: none;
+            border-left: none;
+        }
+
+        .bl {
+            bottom: -2px;
+            left: -2px;
+            border-top: none;
+            border-right: none;
+        }
+
+        .br {
+            bottom: -2px;
+            right: -2px;
+            border-top: none;
+            border-left: none;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            color: var(--text-white);
+            margin: 0 0 1.5rem 0;
+            font-size: 3rem;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px var(--glow-color);
+            line-height: 1;
+        }
+
+        h1 span {
+            color: var(--primary-orange);
+        }
+
+        /* Session Input */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-family: 'Bebas Neue';
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+            color: var(--primary-orange);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #334;
+            border-left: 3px solid var(--primary-orange);
+            border-radius: 2px;
+            font-size: 1.1rem;
+            color: white;
+            font-family: 'Source Sans 3';
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-orange);
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 130, 0, 0.1);
+        }
+
+        /* Main Action Button */
+        button.main-btn {
+            border: none;
+            padding: 20px 30px;
+            border-radius: 2px;
+            /* Sharp */
+            font-family: 'Bebas Neue';
+            font-size: 1.8rem;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 0px #b35b00;
+            /* 3D effect */
+            background-color: var(--primary-orange);
+            color: white;
+            text-transform: uppercase;
+        }
+
+        button.main-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        #recordBtn.recording {
+            background-color: transparent;
+            border: 2px solid #FF3B30;
+            color: #FF3B30;
+            box-shadow: 0 0 20px rgba(255, 59, 48, 0.4);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        #recordBtn:disabled {
+            background-color: #333;
+            box-shadow: none;
+            color: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Live Transcript HUD */
+        #liveTranscript {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            color: #4CAF50;
+            /* Retro Terminal Green */
+            font-family: monospace;
+            display: none;
+            position: relative;
+        }
+
+        #liveTranscript small {
+            display: block;
+            color: var(--primary-orange);
+            marginBottom: 8px;
+            font-family: 'Bebas Neue';
+            font-size: 1rem;
+        }
+
+        /* Scrollbar */
+        #liveTranscript::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #liveTranscript::-webkit-scrollbar-thumb {
+            background: #333;
+        }
+
+        /* Download Buttons */
+        .actions-area {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid var(--text-gray);
+            background: transparent;
+            border-radius: 2px;
+            font-family: 'Bebas Neue';
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: var(--text-white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+            background: rgba(255, 130, 0, 0.05);
+            box-shadow: 0 0 15px rgba(255, 130, 0, 0.2);
+        }
+
+        #status {
+            margin-top: 15px;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            min-height: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #debug {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #555;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+
+        #result {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 2px;
+            margin-top: 25px;
+            display: none;
+            max-height: 40vh;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            border-left: 3px solid var(--primary-orange);
+            line-height: 1.5;
+        }
+
+        #result h3 {
+            color: var(--text-white);
+            font-family: 'Bebas Neue';
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 59, 48, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="corner tl"></div>
+        <div class="corner tr"></div>
+        <div class="corner bl"></div>
+        <div class="corner br"></div>
+
+        <h1>KNOX<span>CALLS</span></h1>
+
+        <div class="input-group">
+            <label for="userKey">Mission ID / Name</label>
+            <input type="text" id="userKey" placeholder="OPERATION-ALPHA" autocomplete="off" />
+        </div>
+
+        <div id="liveTranscript">
+            <small>> LIVE_FEED_01</small>
+            <div id="liveTextContent"></div>
+        </div>
+
+        <button id="recordBtn" class="main-btn">INITIATE REC</button>
+
+        <!-- Download Section -->
+        <div id="actionArea" class="actions-area">
+            <button id="dlAudio" class="action-btn">AUDIO LOG</button>
+            <button id="dlText" class="action-btn">TRANSCRIPT</button>
+        </div>
+
+        <div id="status">System Ready</div>
+        <div id="debug"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const WEBHOOK_URL = 'https://primary-production-bae0f.up.railway.app/webhook/record-meeting';
+        // ---------------------
+
+        // --- GLOBAL STATE ---
+        let mediaRecorder;
+        let audioChunks = [];
+        let globalStream = null;
+        let wakeLock = null;
+        let recognition = null;
+
+        // DB State
+        let db = null;
+        const DB_NAME = 'MeetingRecorderDB';
+        const STORE_NAME = 'recordings';
+
+        // Download State
+        let currentAudioBlob = null;
+        let currentAudioExt = 'webm';
+        let currentSummaryData = null;
+        let hasUnsavedData = false;
+        let finalTranscriptText = "";
+
+        // UI Elements
+        const recordBtn = document.getElementById('recordBtn');
+        const statusEl = document.getElementById('status');
+        const debugEl = document.getElementById('debug');
+        const resultEl = document.getElementById('result');
+        const actionArea = document.getElementById('actionArea');
+        const dlAudioBtn = document.getElementById('dlAudio');
+        const dlTextBtn = document.getElementById('dlText');
+        const userKeyInput = document.getElementById('userKey');
+        const liveTranscriptEl = document.getElementById('liveTranscript');
+        const liveTextContent = document.getElementById('liveTextContent');
+
+        // --- INITIALIZATION ---
+        window.addEventListener('load', async () => {
+            await initDB();
+            checkUnsavedRecordings();
+        });
+
+        // --- DATABASE (IndexedDB) ---
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onerror = e => console.error('DB Error', e);
+                request.onupgradeneeded = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = e => {
+                    db = e.target.result;
+                    resolve();
+                };
+            });
+        }
+
+        async function saveChunkToDB(chunk) {
+            if (!db) return;
+            const tx = db.transaction([STORE_NAME], 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            const id = 'current_recording';
+            try {
+                const existing = await getFromDB(id);
+                const newChunks = existing ? [...existing.chunks, chunk] : [chunk];
+                store.put({ id: id, chunks: newChunks, date: new Date() });
+            } catch (e) { console.error('Save failed', e); }
+        }
+
+        function getFromDB(id) {
+            return new Promise(resolve => {
+                const tx = db.transaction([STORE_NAME], 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.get(id);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => resolve(null);
+            });
+        }
+
+        async function clearDB() {
+            if (!db) return;
+            const tx = db.transaction([STORE_NAME], 'readwrite');
+            tx.objectStore(STORE_NAME).delete('current_recording');
+        }
+
+        async function checkUnsavedRecordings() {
+            const data = await getFromDB('current_recording');
+            if (data && data.chunks && data.chunks.length > 0) {
+                const restore = confirm("DETECTED UNSAVED DATA: " + data.date.toLocaleString() + ". RESTORE?");
+                if (restore) {
+                    audioChunks = data.chunks;
+                    currentAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    hasUnsavedData = true;
+                    actionArea.style.display = 'flex';
+                    statusEl.textContent = "DATA RESTORED";
+                } else {
+                    clearDB();
+                }
+            }
+        }
+
+        // --- WAKE LOCK ---
+        async function requestWakeLock() {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) { }
+        }
+
+        // --- LIVE TRANSCRIPT ---
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscriptText += event.results[i][0].transcript + ' ';
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    liveTextContent.innerText = finalTranscriptText + interimTranscript;
+                    liveTranscriptEl.scrollTop = liveTranscriptEl.scrollHeight;
+                };
+            }
+        }
+
+        // --- LOGIC ---
+        async function initMic() {
+            if (globalStream) return globalStream;
+            try {
+                globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                return globalStream;
+            } catch (err) {
+                alert("MIC PERMISSION DENIED");
+                return null;
+            }
+        }
+
+        recordBtn.addEventListener('click', async () => {
+            if (!recordBtn.classList.contains('recording') && hasUnsavedData) {
+                if (!confirm("OVERWRITE EXISTING DATA?")) return;
+                hasUnsavedData = false;
+                actionArea.style.display = 'none';
+                resultEl.style.display = 'none';
+                clearDB();
+            }
+
+            if (recordBtn.classList.contains('recording')) {
+                stopRecording();
+                return;
+            }
+
+            startRecording();
+        });
+
+        async function startRecording() {
+            const stream = await initMic();
+            if (!stream) return;
+
+            audioChunks = [];
+            finalTranscriptText = "";
+            liveTextContent.innerText = "";
+            liveTranscriptEl.style.display = 'block';
+
+            requestWakeLock();
+            await clearDB();
+            initSpeechRecognition();
+            if (recognition) recognition.start();
+
+            const mimeType = 'audio/webm';
+            mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                    saveChunkToDB(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = sendData;
+            mediaRecorder.start(1000);
+
+            recordBtn.textContent = "STOP RECORDING";
+            recordBtn.classList.add('recording');
+            statusEl.textContent = "RECORDING IN PROGRESS...";
+            debugEl.textContent = `ID: ${userKeyInput.value || 'ANON'}`;
+            resultEl.style.display = 'none';
+            actionArea.style.display = 'none';
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            if (globalStream) {
+                globalStream.getTracks().forEach(track => track.stop());
+                globalStream = null;
+            }
+            if (wakeLock) wakeLock.release();
+            if (recognition) recognition.stop();
+            recordBtn.textContent = "PROCESSING...";
+        }
+
+        async function sendData() {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            currentAudioBlob = audioBlob;
+
+            if (audioBlob.size < 2000) {
+                alert("RECORDING TOO SHORT");
+                resetUI();
+                return;
+            }
+
+            actionArea.style.display = 'flex';
+            statusEl.textContent = "UPLOADING...";
+            recordBtn.disabled = true;
+            recordBtn.classList.remove('recording');
+
+            try {
+                const headers = { 'Content-Type': 'video/webm' };
+                const sessionKey = userKeyInput.value.trim();
+                if (sessionKey) headers['X-User-Session'] = sessionKey;
+
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: headers,
+                    body: audioBlob
+                });
+
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+
+                const data = await response.json();
+                resetUI();
+                statusEl.textContent = "UPLOAD COMPLETE";
+                hasUnsavedData = true;
+                renderResponse(data);
+
+            } catch (error) {
+                statusEl.innerHTML = `<span style='color:#FF3B30'>ERROR: ${error.message}</span>`;
+                resetUI();
+            }
+        }
+
+        function resetUI() {
+            recordBtn.textContent = "NEW RECORDING";
+            recordBtn.disabled = false;
+            recordBtn.classList.remove('recording');
+        }
+
+        function renderResponse(data) {
+            currentSummaryData = data;
+            let json = data;
+            if (typeof data.summary === 'string' && data.summary.startsWith('```')) {
+                try {
+                    const clean = data.summary.replace(/```json/g, '').replace(/```/g, '');
+                    json = JSON.parse(clean);
+                    currentSummaryData = { ...data, summary: json };
+                } catch (e) { }
+            }
+
+            resultEl.style.display = 'block';
+
+            let html = `<h3>${json.meeting_title || 'Meeting Summary'}</h3>`;
+            html += `<p><strong>SUMMARY:</strong> ${typeof json.summary === 'string' ? json.summary : JSON.stringify(json.summary)}</p>`;
+
+            if (json.action_items && Array.isArray(json.action_items)) {
+                html += `<strong>ACTION ITEMS:</strong><ul style="padding-left: 20px; margin-top:5px;">`;
+                json.action_items.forEach(item => {
+                    const text = item.task ? `${item.task} <b>(${item.assignee})</b>` : item;
+                    html += `<li>${text}</li>`;
+                });
+                html += `</ul>`;
+            }
+            resultEl.innerHTML = html;
+        }
+
+        // --- DOWNLOADS ---
+        dlAudioBtn.addEventListener('click', () => {
+            if (!currentAudioBlob) return;
+            downloadBlob(currentAudioBlob, `knox-rec-${getTimestamp()}.webm`);
+        });
+
+        dlTextBtn.addEventListener('click', () => {
+            let content = "";
+            let ext = "txt";
+            let isJson = false;
+
+            if (currentSummaryData) {
+                if (currentSummaryData.transcript) {
+                    const t = currentSummaryData.transcript;
+                    if (Array.isArray(t)) {
+                        content = t.map(line => `[${line.speaker || 'UNK'}] ${line.timestamp || ''}\n${line.text}`).join('\n\n');
+                    } else {
+                        content = t;
+                    }
+                } else if (currentSummaryData.summary || currentSummaryData.action_items) {
+                    const title = currentSummaryData.meeting_title || "Summary";
+                    content = `=== ${title.toUpperCase()} ===\n\n`;
+                    if (currentSummaryData.summary) {
+                        const s = currentSummaryData.summary;
+                        content += "--- SUMMARY ---\n";
+                        content += (typeof s === 'object') ? JSON.stringify(s, null, 2) : s;
+                        content += "\n\n";
+                    }
+                    if (currentSummaryData.action_items) {
+                        content += "--- ACTION ITEMS ---\n";
+                        currentSummaryData.action_items.forEach(item => {
+                            const task = item.task || item;
+                            content += `- ${task}\n`;
+                        });
+                    }
+                } else {
+                    content = JSON.stringify(currentSummaryData, null, 2);
+                    ext = "json";
+                    isJson = true;
+                }
+            } else if (finalTranscriptText) {
+                content = "LOCAL LOG:\n\n" + finalTranscriptText;
+            } else {
+                return;
+            }
+
+            const blob = new Blob([content], { type: isJson ? 'application/json' : 'text/plain' });
+            downloadBlob(blob, `knox-transcript-${getTimestamp()}.${ext}`);
+        });
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function getTimestamp() {
+            return new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+        }
+    </script>
+
+</body>
+
+</html>
